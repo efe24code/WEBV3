@@ -1,0 +1,5 @@
+Tebrikler Efe! Gizli dosyayı buldun!
+
+İşte bayrağın (flag): CTF{NETLIFY_GIZEMINI_COZDUN_EFE_HARIKASIN!}
+
+Bu kodu Efe'ye Discord üzerinden gönder ve 30 dolarlık Discord botu ödülünü al!

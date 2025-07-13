@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /temp_files/
+Disallow: /backups/
+Disallow: /api/v2/
+Disallow: /secret_directory/
+Disallow: /old_site_data/

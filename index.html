@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siber Güvenlik Simülasyonu: Operasyon KARPESRK Başlatıldı</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <meta name="author" content="Specter (Known as Efe)">
+    <meta name="description" content="Siber güvenlik mimarisinin sınırlarını zorlayan, ileri düzey bir entegrasyon testi.">
+    <meta name="keywords" content="cybersecurity, advanced, penetration-testing, zero-day, obfuscation, CTF, exploit, reverse-engineering, karpesrk, deep-analysis">
+    <meta name="challenge_fragment_1" content="c2VjcmV0Xw=="> <meta name="version_info" content="ZGlyZWN0b3J5Lw=="> <style>
+        /* Ana terminal stilizasyonu */
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', Courier, monospace;
+            background-color: #0d0d1a; /* Daha koyu, morumsu bir ton */
+            color: #00ff66; /* Parlak yeşil */
+            margin: 0;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Glitch efekti için arka plan animasyonu - Daha rafine */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                #0d0d1a,
+                #0d0d1a 1.5px,
+                #00ff66 1.5px,
+                #00ff66 3px
+            );
+            opacity: 0.03; /* Çok hafif */
+            animation: scanline 12s linear infinite; /* Daha yavaş, daha subtil */
+            z-index: -1;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        .container {
+            background-color: #1a1a33; /* Hafif daha açık, morumsu gri */
+            border: 2px solid #66ffff; /* Turkuaz tonu */
+            padding: 25px 35px;
+            box-shadow: 0 0 40px rgba(102, 255, 255, 0.7); /* Daha yoğun parıltı */
+            max-width: 850px;
+            width: 95%;
+            text-align: center;
+            z-index: 1;
+            position: relative;
+            animation: fadeIn 2.5s ease-out; /* Daha yavaş giriş */
+            box-sizing: border-box;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #66ffff;
+            text-shadow: 0 0 30px #66ffff;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            animation: pulsate 1.5s infinite alternate; /* Biraz daha yavaş pulsasyon */
+        }
+
+        @keyframes pulsate {
+            from { text-shadow: 0 0 15px #66ffff; }
+            to { text-shadow: 0 0 45px #66ffff, 0 0 50px #66ffff; }
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 8px;
+            font-size: 1em;
+            color: #ccffcc; /* Açık yeşil tonu */
+        }
+
+        .hint {
+            color: #ff33cc; /* Parlak pembe */
+            font-style: italic;
+            margin-top: 15px;
+            font-size: 0.8em;
+            letter-spacing: 0.5px;
+        }
+
+        a {
+            color: #66ffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #00ff66;
+            text-decoration: underline;
+        }
+
+        /* TIMER STYLES - Daha profesyonel görünüm */
+        #challengeTimer {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #ffff33; /* Neon sarısı */
+            margin-top: 15px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 12px #ffff33, 0 0 25px rgba(255, 255, 51, 0.6);
+            border-bottom: 1px dashed rgba(255, 255, 51, 0.3);
+            padding-bottom: 5px;
+            display: inline-block; /* Genişliğini içeriğine göre ayarlar */
+            min-width: 120px; /* Sabit genişlik */
+        }
+
+        #timerMessage {
+            font-size: 1.4em;
+            color: #ff3333; /* Kırmızı */
+            font-weight: bold;
+            margin-top: 15px;
+            display: none; /* Hidden by default */
+            animation: fadeInOut 0.8s infinite alternate;
+        }
+
+        @keyframes fadeInOut {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        /* Blink efekti için genel sınıf */
+        .blink {
+            animation: blinker 1s steps(1) infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        /* Sahte Terminal Çıktısı Alanı */
+        #terminalOutput {
+            background-color: #0a0a15; /* Çok koyu terminal arka planı */
+            border: 1px solid #3366cc; /* Mavi tonlu kenarlık */
+            padding: 15px;
+            margin-top: 30px;
+            text-align: left;
+            font-size: 0.9em;
+            height: 150px; /* Sabit yükseklik */
+            overflow-y: auto; /* Kaydırma çubuğu */
+            color: #00ccff; /* Açık mavi metin */
+            white-space: pre-wrap; /* Satır sonlarını koru */
+            box-shadow: inset 0 0 10px rgba(51, 102, 204, 0.4);
+        }
+
+        #terminalOutput p {
+            margin: 0;
+            padding: 2px 0;
+            border-left: 3px solid transparent;
+        }
+        #terminalOutput p.success { color: #00ff66; }
+        #terminalOutput p.warning { color: #ffff33; }
+        #terminalOutput p.error { color: #ff3333; }
+        #terminalOutput p.info { color: #00ccff; }
+
+        /* Özlü Sözler Bölümü */
+        .aphorisms-section {
+            margin-top: 35px;
+            padding: 20px;
+            border: 1px dashed #9966ff; /* Mor tonlu dashed border */
+            background-color: #1c1c3d; /* Koyu morumsu arka plan */
+            box-shadow: 0 0 25px rgba(153, 102, 255, 0.5); /* Mor parıltı */
+            color: #e0ccff; /* Açık mor metin */
+            font-style: italic;
+            text-align: center;
+        }
+
+        .aphorisms-section h2 {
+            color: #9966ff;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px #9966ff;
+        }
+
+        .aphorisms-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .aphorisms-section li {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+
+        /* En karmaşık gizleme teknikleri */
+        .super-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+            white-space: nowrap;
+            color: transparent;
+            text-shadow: none;
+        }
+
+        .zero-size-hidden {
+            font-size: 0;
+            line-height: 0;
+            letter-spacing: -9999px;
+            opacity: 0;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Pseudo-element ile gizleme */
+        .pseudo-hint::after {
+            content: "ZmxhZy50eHQ="; /* Base64 for "flag.txt" */
+            display: block;
+            height: 0;
+            overflow: hidden;
+            color: transparent;
+            font-size: 0;
+            visibility: hidden;
+        }
+
+        /* Fake background image with hint */
+        .fake-bg-hint {
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjx0ZXh0IHg9IjAiIHk9IjAiIGZpbGw9InJlZCIgZm9udC1zaXplPSIwIj5ibGFnkdC50eHQ8L3RleHQ+PC9zdmc+"); /* Base64 encoded tiny SVG with 'flag.txt' hidden text (corrupted to mislead) */
+            background-repeat: no-repeat;
+            background-position: -9999px -9999px;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+
+        /* Login/Register formu - Minimum boyut */
+        .auth-form {
+            margin-top: 25px;
+            padding: 12px;
+            border: 1px dashed #66ffff;
+            background-color: #1a1a33;
+            box-shadow: inset 0 0 10px rgba(102, 255, 255, 0.3);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .auth-form h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #66ffff;
+            font-size: 1.6em;
+        }
+
+        .auth-form p {
+            font-size: 0.9em;
+            margin-bottom: 6px;
+        }
+
+        .auth-form input[type="text"],
+        .auth-form input[type="password"] {
+            background-color: #0a0a15;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            padding: 8px;
+            margin: 3px 0;
+            width: calc(100% - 16px);
+            box-sizing: border-box;
+            font-size: 0.9em;
+        }
+
+        .auth-form button {
+            background-color: #66ffff;
+            color: #0d0d1a;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 4px;
+        }
+
+        .auth-form button:hover {
+            background-color: #00ff66;
+            color: #1a1a33;
+            transform: translateY(-2px);
+        }
+
+        .auth-message {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #ff3333;
+        }
+
+        body > div.container > p:last-of-type {
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+
+        /* Küçük ekranlar için ek ayarlamalar */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 8px;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 12px;
+            }
+            p {
+                font-size: 0.9em;
+                margin-bottom: 6px;
+            }
+            .hint {
+                font-size: 0.75em;
+                margin-top: 10px;
+            }
+            #challengeTimer {
+                font-size: 1.6em;
+                margin-bottom: 15px;
+            }
+            #timerMessage {
+                font-size: 1.1em;
+            }
+            .auth-form {
+                padding: 10px;
+            }
+            .auth-form h2 {
+                font-size: 1.3em;
+            }
+            .auth-form input[type="text"],
+            .auth-form input[type="password"] {
+                padding: 6px;
+                font-size: 0.85em;
+            }
+            .auth-form button {
+                padding: 6px 10px;
+                font-size: 0.9em;
+            }
+            #terminalOutput {
+                height: 120px;
+                font-size: 0.8em;
+                padding: 10px;
+            }
+            .aphorisms-section {
+                padding: 15px;
+                margin-top: 25px;
+            }
+            .aphorisms-section h2 {
+                font-size: 1.5em;
+            }
+            .aphorisms-section li {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SİBER KONTROL PANELİ: <span class="blink">ERİŞİM İZNİ</span></h1>
+        <p>Hoş geldin, **[KULLANICI ADI SİSTEMİ ÇÖZÜLECEK]**. Bu platform, sıradan zihinlerin çözemeyeceği bir mimariye sahiptir.</p>
+        <p>Sınırlarını test etmeye hazır mısın? Zaman, algı ve verinin manipülasyonu üzerine bir ders alacaksın.</p>
+
+        <div id="challengeTimer">01:00</div>
+        <div id="timerMessage">SÜRE DOLDU! SİSTEM YENİDEN KALİBRE EDİLİYOR...</div>
+
+        <p class="hint"><strong>&gt; IPUCU YÖNLENDİRME (SYNTAX):</strong> Her piksel bir veri noktasıdır. Görünmeyeni aramayı bırak, algılanmayanı analiz et.</p>
+        <p class="hint"><strong>&gt; YÖNTEM TAVSİYESİ (POLYMORPHISM):</strong> Tek bir araç tüm kapıları açmaz. Katmanlar arası geçiş yap.</p>
+        <p class="hint"><strong>&gt; SİSTEM STATÜSÜ (DIAGNOSTIC):</strong> Protokol başlıkları genellikle göz ardı edilir. Bu bir hata.</p>
+
+        <div class="aphorisms-section">
+            <h2>SİSTEM FELSEFESİ</h2>
+            <ul>
+                <li>"Gerçek, her zaman görünmez katmanların ardındadır."</li>
+                <li>"En güçlü anahtar, zihnin doğru soruyu sormasıdır."</li>
+                <li>"Bilgi, sadece toplamakla kalmaz, doğru birleştirmekle değer kazanır."</li>
+                <li>"Gölgeyi takip eden, ışığın kaynağını bulur."</li>
+                <li>"Sistemin kendisi bir ipucudur. Onu yorumlamayı öğren."</li>
+                <li>"Zaman, en acımasız ifşa edicidir. Kendi ritmini bul."</li>
+                <li>"Çözüm, çoğu zaman sorunla aynı kaynaktan beslenir."</li>
+            </ul>
+        </div>
+
+        <div id="terminalOutput">
+            <p class="success">SYSTEM BOOT: Initiating core modules...</p>
+            <p class="info">PROTOCOL: Establishing encrypted communication link...</p>
+            <p class="success">STATUS: Network topology mapping complete. (Fake Data: 192.168.1.1 - 255.255.255.0)</p>
+            <p class="warning">ALERT: Unauthorized data stream detected in hidden channels. Ignoring for diagnostic purposes...</p>
+            <p class="info">ANALYSIS: Data integrity check running... (ETA: 1.8.2.0)</p>
+            <p class="success">SYSTEM READY. Access granted to Challenge Module: KARPESRK.</p>
+            <p class="info"><span class="blink">&gt;</span> awaiting command...</p>
+        </div>
+
+        <div class="auth-form">
+            <h2>TERMINAL: GİRİŞ / YETKİLENDİRME (DEMO)</h2>
+            <p>Bu arayüz sadece simülasyon amaçlıdır. Herhangi bir veri depolamaz.</p>
+            <input type="text" id="username" placeholder="Kullanıcı Adı (e.g., Specter)">
+            <input type="password" id="password" placeholder="Şifre (e.g., ****)">
+            <button onclick="attemptAuth('login')">Bağlan</button>
+            <button onclick="attemptAuth('register')">Yetki Talebi</button>
+            <p class="auth-message" id="authMessage"></p>
+        </div>
+
+        <p class="super-hidden">
+            Bu metni görmek için CSS'i değiştirmen veya çok dikkatli olman gerek.
+            Birinci ipucu parçası: `P1_s`
+        </p>
+
+        <span class="zero-size-hidden">
+            İkinci ipucu parçası: `P2_e`
+            Metin seçilemez veya kopyalanamaz, sadece geliştirici araçlarında.
+        </span>
+
+        <p class="pseudo-hint">
+            Bu elemanın stilini incele. `::after` sözde elemanında bir gizli içerik var.
+        </p>
+
+        <div class="fake-bg-hint"></div> <p style="margin-top: 15px;">**[SİSTEM UYARISI]**: Her şey göründüğü gibi olsaydı, bu bir meydan okuma olmazdı. Derinlere in.</p>
+    </div>
+
+    <script>
+        // --- TIMER LOGIC ---
+        const TIMER_DURATION = 60; // 1 dakika = 60 saniye
+        let timeLeft = TIMER_DURATION;
+        let timerInterval;
+        const timerDisplay = document.getElementById('challengeTimer');
+        const timerMessage = document.getElementById('timerMessage');
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            timerDisplay.textContent = formatTime(timeLeft);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = formatTime(timeLeft);
+
+                // Renk değişimi: Son 30 saniye sarı, son 15 saniye kırmızı
+                if (timeLeft <= 15) {
+                    timerDisplay.style.color = '#ff3333'; // Kırmızı
+                    timerDisplay.style.textShadow = '0 0 10px #ff3333, 0 0 20px rgba(255, 51, 51, 0.5)';
+                } else if (timeLeft <= 30) {
+                    timerDisplay.style.color = '#ffff33'; // Sarı
+                    timerDisplay.style.textShadow = '0 0 10px #ffff33, 0 0 20px rgba(255, 255, 51, 0.5)';
+                } else {
+                    timerDisplay.style.color = '#66ffff'; // Turkuaz
+                    timerDisplay.style.textShadow = '0 0 10px #66ffff, 0 0 20px rgba(102, 255, 255, 0.5)';
+                }
+
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "00:00";
+                    timerMessage.style.display = 'block'; // Mesajı göster
+                    console.log("%cSÜRE DOLDU! Bu denemeyi zamanında tamamlayamadın. Meydan okuma yeniden başlıyor...", "color: red; font-size: 1.5em; font-weight: bold;");
+                    // 5 saniye sonra sayfayı yeniden yükle
+                    setTimeout(() => {
+                        location.reload();
+                    }, 5000);
+                }
+            }, 1000);
+        }
+        // --- END TIMER LOGIC ---
+
+
+        // Sahte Terminal Çıktısı Loglayıcı
+        const terminalOutputDiv = document.getElementById('terminalOutput');
+        let currentLogIndex = 0;
+        const logMessages = [
+            { text: "CORE: Initiating secure boot sequence...", type: "success" },
+            { text: "SCAN: Performing rootkit detection... [ OK ]", type: "info" },
+            { text: "NET: Establishing quantum entanglement connection... [ OK ]", type: "success" },
+            { text: "DATA: Synchronizing encrypted caches...", type: "info" },
+            { text: "WARNING: Anomalous signature detected in L3 cache. Threat level: LOW (Bypass enabled)", type: "warning" },
+            { text: "CPU: Calibrating neural network processors...", type: "info" },
+            { text: "SYSTEM: All modules online. Challenge initiated.", type: "success" },
+            { text: "ADVISORY: Conventional methods lead to recursive dead-ends. Paradigm shift required.", type: "warning" },
+            { text: "LOG: Unauthorized console access detected. This session is monitored.", type: "error" },
+            { text: "HINT: The path to validation is often encoded within the request itself. Observe the headers.", type: "info" }
+        ];
+
+        function addTerminalLog() {
+            if (currentLogIndex < logMessages.length) {
+                const log = logMessages[currentLogIndex];
+                const p = document.createElement('p');
+                p.className = log.type;
+                p.textContent = `[${new Date().toLocaleTimeString()}] ${log.text}`;
+                terminalOutputDiv.appendChild(p);
+                terminalOutputDiv.scrollTop = terminalOutputDiv.scrollHeight; // Auto-scroll
+                currentLogIndex++;
+                setTimeout(addTerminalLog, Math.random() * 1500 + 500); // Random delay for realism
+            }
+        }
+
+
+        // JavaScript konsolunda gizlenmiş daha fazla ipucu ve yanıltmaca
+        console.log("-------------------------------------------------------");
+        console.log("%cSYSTEM OVERRIDE: Level 5 Access Granted. Proceed with extreme caution.", "color: #ffcc00; font-weight: bold; font-size: 1.2em;");
+        console.log("-------------------------------------------------------");
+        console.log("%c[DEBUG_INFO]: Packet trace indicates an external observer. Maintain stealth protocols.", "color: #00ffff;");
+        console.log("SYNTAX: Inspect the DOM's deeper layers. Not all data is rendered visually.");
+        console.log("LOCAL STORAGE: A fragmented key is stored. Assembly required. (Key: 'key_fragment_3')");
+        console.log("EVENT MONITORING: Special key combinations may unlock hidden functionalities. Test systematically.");
+
+        // Karmaşık path oluşturma fonksiyonu (3 parçayı birleştirme)
+        function assembleKeyPath(partA_b64, partB_b64, partC_b64) {
+            try {
+                const p1 = atob(partA_b64); // "secret_"
+                const p2 = atob(partB_b64); // "directory/"
+                const p3 = atob(partC_b64); // "flag.txt"
+                console.log("%cPATH_ASSEMBLY_MODULE: Successfully compiled target path.", "color: #00ff66;");
+                return p1 + p2 + p3;
+            } catch (e) {
+                console.error("%cERROR: Path assembly failed. Data corruption or missing fragments detected.", "color: #ff3333;");
+                return "FAIL: Invalid_Path_Fragments";
+            }
+        }
+
+        // Konsola path parçalarıyla ilgili ipuçları bırakma
+        setTimeout(() => {
+            console.log("%c[CRITICAL_BROADCAST]: A three-part key is distributed. PartA in a meta-tag. PartB in another meta-tag. PartC within a CSS pseudo-element or a JS string. Utilize 'assembleKeyPath' function.", "color: #ff9900; font-weight: bold;");
+        }, 8000); // 8 saniye sonra konsolda belirecek
+
+        // Local Storage'da bir ipucu sakla
+        localStorage.setItem("challenge_hint_lsk_obf", "NDQ0NQ=="); // Base64 for "4445" - misleading number
+        localStorage.setItem("key_fragment_3", "ZmxhZy50eHQ="); // Base64 for "flag.txt" (this is the real 3rd part)
+        console.log("[SYSTEM_LOG]: Local Storage updated with obfuscated metadata. Review all client-side storage.");
+
+        // Simüle edilmiş bir "ağ isteği" yanıtı (daha karmaşık ve yanıltıcı)
+        console.log("%c[HTTP_HEADER_SIMULATION]: X-Debug-Hint: VGhpcyBpcyBub3QgdGhlIGZsYWcuIEJ1dCB0aGUgZmlsZSBlbmRzIHdpdGggLm5vdGU=", "color: #00ccff;");
+        // Decode: "This is not the flag. But the file ends with .note" (Yanıltmaca: .note yerine .txt olmalı)
+
+        // URL parametresi ile çağrıldığında ipucu veren fonksiyon (biraz daha karmaşık)
+        function activateDebugMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const debugKey = urlParams.get('debug_key');
+            if (debugKey === 'karpesrk_access') {
+                console.log("%c[DEBUG_MODE_ACTIVE]: Warning: `robots.txt` contains a critical disallow directive. A 'flag.txt' resides within the restricted directory.", "color: #ffff33; font-size: 1.1em;");
+            } else if (debugKey) {
+                console.log(`%c[DEBUG_MODE_ERROR]: Invalid debug key: ${debugKey}. Authentication protocol failed.`, "color: #ff3333;");
+            }
+        }
+
+
+        // Klavye kombinasyonu ile tetiklenen gizli fonksiyon
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.shiftKey && e.key === 'F') { // Alt + Shift + F
+                e.preventDefault(); // Varsayılan davranışı engelle
+                console.log("%c[SECRET_KEY_COMBO_ACTIVATED]: Access protocol initiated. Assemble fragments from meta-tags and CSS pseudo-elements. Execute the JS path assembly function.", "color: #ff99ff; font-weight: bold; font-size: 1.1em;");
+                const clipHidden = document.getElementById('clipHiddenHint');
+                if (clipHidden) {
+                    clipHidden.style.clipPath = 'circle(100% at 50% 50%)';
+                    clipHidden.style.left = 'auto';
+                    clipHidden.style.position = 'static';
+                    clipHidden.style.color = '#ff33cc';
+                    clipHidden.style.fontSize = '0.7em';
+                    console.log("[DOM_UPDATE]: Hidden element visibility adjusted. Re-inspect DOM tree for anomalies.");
+                }
+            }
+        });
+
+        // Sayfa yüklendiğinde çalışacak diğer kodlar
+        document.addEventListener('DOMContentLoaded', () => {
+            startTimer(); // Sayfa yüklendiğinde sayacı başlat
+            addTerminalLog(); // Sahte terminal loglarını başlat
+            activateDebugMode(); // Debug modunu kontrol et
+
+            // Metadaki parçaları konsola yazdır (ayrı ayrı)
+            const frag1Meta = document.querySelector('meta[name="challenge_fragment_1"]');
+            if (frag1Meta) console.log("[META_FRAGMENT_RETRIEVAL]: Part 1: " + frag1Meta.content);
+            const frag2Meta = document.querySelector('meta[name="version_info"]');
+            if (frag2Meta) console.log("[META_FRAGMENT_RETRIEVAL]: Part 2: " + frag2Meta.content);
+
+            // CSS pseudo-element ipucunu konsola yazdır (simülasyon)
+            const pseudoHintElement = document.querySelector('.pseudo-hint');
+            if (pseudoHintElement && window.getComputedStyle) {
+                const pseudoContent = window.getComputedStyle(pseudoHintElement, '::after').content;
+                console.log("[CSS_PSEUDO_EXTRACTION]: Hidden content: " + pseudoContent);
+            }
+
+            // Fake background image hint
+            const fakeBgHintElement = document.querySelector('.fake-bg-hint');
+            if (fakeBgHintElement) {
+                const bgImage = window.getComputedStyle(fakeBgHintElement).backgroundImage;
+                if (bgImage && bgImage.includes("data:image/svg+xml;base64,")) {
+                    const encodedSvg = bgImage.split("data:image/svg+xml;base64,")[1];
+                    try {
+                        console.log("%c[RESOURCE_ANALYSIS]: Embedded SVG hint: " + atob(encodedSvg), "color: #999999;");
+                    } catch (e) {
+                        console.log("%c[RESOURCE_ERROR]: Corrupted Base64 in SVG. Data fragmented.", "color: #ff3333;");
+                    }
+                }
+            }
+        });
+
+        // Sahte giriş/kayıt denemesi fonksiyonu
+        function attemptAuth(action) {
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+            const authMessage = document.getElementById('authMessage');
+
+            authMessage.style.color = "#ff3333";
+            if (action === 'login') {
+                if (usernameInput === "Specter" && passwordInput === "AccessDenied") { // Hardcoded "correct" for fun
+                    authMessage.style.color = "#00ff66";
+                    authMessage.textContent = "AUTH_SUCCESS: Restricted access to demo console. Primary target remains elsewhere.";
+                    console.log("%c[AUTH_PROTOCOL]: Demo login successful. This path is a diversion. Re-evaluate primary objective.", "color: #00ff66;");
+                } else {
+                    authMessage.textContent = "AUTH_FAIL: Credentials rejected. Invalid input or unauthorized access attempt.";
+                    console.log("%c[AUTH_PROTOCOL]: Login attempt failed. This module is non-critical. Bypass if necessary.", "color: #ff3333;");
+                }
+            } else if (action === 'register') {
+                if (usernameInput.length > 5 && passwordInput.length > 8) {
+                    authMessage.style.color = "#66ffff";
+                    authMessage.textContent = "AUTH_REGISTER: Registration successful. Data discarded post-session. System is stateless.";
+                    console.log("%c[AUTH_PROTOCOL]: Registration simulated. Data not persisted. Focus on the core challenge.", "color: #66ffff;");
+                } else {
+                    authMessage.textContent = "AUTH_FAIL: Input criteria not met. Username > 5, Password > 8 chars.";
+                    console.log("%c[AUTH_PROTOCOL]: Registration failed: Weak credentials. Irrelevant to primary objective.", "color: #ff3333;");
+                }
+            }
+        }
+
+        // Gereksiz ve yanıltıcı fonksiyonlar
+        function initializeTelemetry() {
+            console.log("[TELEMETRY_MODULE]: Initialized. Passive monitoring active. (Warning: Self-referential loop detected - ignore)");
+        }
+        initializeTelemetry();
+
+        function checkSystemIntegrity(param1, param2) {
+            console.log(`[INTEGRITY_CHECK]: Initiated with parameters: ${param1}, ${param2}. Result: ${Math.random() < 0.7 ? 'PASS' : 'FAIL'}`);
+            if (param1 === "critical" && param2 === "core") {
+                console.warn("%c[CRITICAL_WARNING]: Unforeseen execution path detected. Recommend deep memory dump analysis.", "color: #ff9900;");
+            }
+        }
+        checkSystemIntegrity("stateful_sync", "heuristic_scan");
+        checkSystemIntegrity("critical", "core");
+    </script>
+</body>
+</html>

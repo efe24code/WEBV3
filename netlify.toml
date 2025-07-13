@@ -1,0 +1,19 @@
+# Netlify Build Ayarları
+[build]
+  publish = "." # Sitenin kök dizinini yayınla
+  command = ""  # Statik site olduğu için build komutuna gerek yok
+
+# Yeniden Yönlendirmeler (Opsiyonel ama bu CTF için yanıltıcı olabilir)
+[[redirects]]
+  from = "/api/*" # /api ile başlayan tüm yolları
+  to = "/404.html" # 404 sayfasına yönlendir (hacker'ları yanıltmak için)
+  status = 404
+
+# Özel HTTP Başlıkları (BU KISIM BİZİM İPUÇLARIMIZ!)
+[[headers]]
+  for = "/*" # Tüm sayfalara bu başlıkları ekle
+  [headers.values]
+    X-Hidden-Clue-1 = "Q2hlY2sgdGhlIGxvY2FsIHN0b3JhZ2UgaW4geW91ciBicm93c2Vy." # Base64 for "Check the local storage in your browser."
+    X-Hidden-Clue-2 = "VGhlIGZpbmFsIHBhdGggaXMgc2VjcmV0X2RpcmVjdG9yeS9mbGFnLnR4dA==" # Base64 for "The final path is secret_directory/flag.txt"
+    X-Powered-By = "Mystery" # Genel bir yanıltmaca
+    X-CTF-Version = "SECURİTY-V1.0"
